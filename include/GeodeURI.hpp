@@ -25,7 +25,8 @@ inline geode::ListenerHandle handleURI(
     return URIEvent().listen([handlePath, callback](const std::string& uri) {
         if (geode::utils::string::startsWith(uri, handlePath + "/")) {
             callback(uri.substr(handlePath.size() + 1));
+            return false;
         }
-        return false;
+        return true;
     });
 }
