@@ -43,19 +43,19 @@ void runEvent(std::string const& pathFlag) {
 $on_mod(Loaded) {
     if (auto pathFlag = Mod::get()->getLaunchArgument("path")) {
         bringToFront();
-        GameEvent(GameEventType::Loaded).listen([pathFlag](auto) {
+        GameEvent(GameEventType::Loaded).listen([pathFlag] {
             runEvent(pathFlag.value());
         }).leak();
     }
 
-    listen("handle", [](IPCEvent* ev) -> matjson::Value {
-        if (auto str = ev->messageData->asString().ok()) {
+    listen("handle", [](matjson::Value messageData) -> matjson::Value {
+        if (auto str = messageData.asString().ok()) {
             Loader::get()->queueInMainThread([str] {
                 bringToFront();
                 runEvent(str.value());
             });
         } else {
-            log::error("Invalid IPC Message: {}", ev->messageData);
+            log::error("Invalid IPC Message: {}", messageData.dump());
         }
         return {};
     });
